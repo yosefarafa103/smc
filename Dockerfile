@@ -14,6 +14,6 @@ RUN npm install
 COPY . .
 
 # Expose the port
-EXPOSE 5001
+EXPOSE 8000
 
 CMD [ "node", "app.js" ]
