@@ -1,7 +1,12 @@
 const Mill = require("../models/MillModel");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const { converAndTransformToDate } = require("../crud/functions");
+const {
+  converAndTransformToDate,
+  convertFromStrTomMs,
+  transformMsToDate,
+  saveNewProperties,
+} = require("../crud/functions");
 
 exports.createNewMill = async (req, res, next) => {
   const mill = await Mill.create(req.body);
@@ -105,6 +110,11 @@ exports.getAllMills = async (req, res, next) => {
 // 86400000 day => millsecounds
 exports.getMill = async (req, res, next) => {
   const mill = await Mill.findById(req.params.id).select("-section");
+  // mill.millStats.other = mill.other
+  //   .map((el) => convertFromStrTomMs(el.trim()))
+  //   .reduce((el, acc) => acc + el);
+
+  console.log(mill);
   if (mill && mill.startDate && mill.stopDate) {
     const differenceInMilliseconds = mill.stopDate - mill.startDate;
     mill.duration = converAndTransformToDate(
@@ -129,25 +139,53 @@ exports.updateMill = async (req, res, next) => {
   // req.authorization = req.cookies.jwt;
   // const { id } = jwt.verify(req.cookies.jwt, process.env.DB_PASS);
   // const loggedInUser = await User.findById(req.params.id);
-  const mill = await Mill.findByIdAndUpdate(req.params.id, {
-    ...req.body,
-    ...{
-      $addToSet: {
-        updatedBy: req.body.updatedBy,
+  const mill = await Mill.findByIdAndUpdate(
+    req.params.id,
+    {
+      ...req.body,
+      ...{
+        $addToSet: {
+          updatedBy: req.body.updatedBy,
+        },
       },
     },
-  });
-  // mill = Mill.updateOne({})
+    {
+      runValidators: true,
+      new: true,
+    }
+  );
 
-  // await mill.save();
-  // if (!mill.updatedBy.includes(`${loggedInUser._id}`)) {
-  //   mill.updatedBy.push(loggedInUser._id);
-  // }
+  // stop category
+  let key = mill.stopCategory;
+  // console.log(key);
+  mill[key].push(mill.duration);
+  // carryOutBy
+  let key2 = mill.carriedOutBy;
+  console.log(mill.carriedOutBy);
+  // mill.millStatsCarryOutBy[key2].push(mill.duration);
+  // console.log(mill.millStatsCarryOutBy[key2]);
+  const carryOutResson = mill.millStatsCarryOutBy[key2];
+  // console.log(carryOutResson);
+  carryOutResson.push(mill.duration)
+  // await Mill.findByIdAndUpdate(mill._id, {
+  //   $push: {
+  //     carryOutResson: mill.duration,
+  //   },
+  // });
+  await mill.save();
   // { $addToSet: { <field1>: <value1>, ... } }
-  console.log(mill);
-
+  // console.log(mill);
   if (!mill) {
     return next("Can Not Found This Mill!");
   }
   res.status(200).json(mill);
+};
+exports.deleteMill = async (req, res, next) => {
+  try {
+    const mill = await Mill.findByIdAndDelete(req.params.id);
+    console.log("Mill Deleted!");
+    res.end();
+  } catch (err) {
+    return next("can not find mill!");
+  }
 };

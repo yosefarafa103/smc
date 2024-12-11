@@ -40,7 +40,7 @@ const userSchema = new Schema({
 });
 userSchema.pre("find", function (next) {
   // { isActive: { $ne: false } }
-  this.find({ isActive: { $ne: false } }).select('-isActive');
+  // this.find({ isActive: { $ne: false } }).select('-isActive');
   next();
 });
 userSchema.pre("save", function (next) {

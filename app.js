@@ -9,6 +9,7 @@ const userRoute = require("./routes/userRoute");
 const isAdmin = require("./middleware/isAdmin");
 de.config();
 const Mill = require("./models/MillModel");
+const reportRouter = require("./routes/reportRoutes");
 const {
   converAndTransformToDate,
   convertFromStrTomMs,
@@ -31,6 +32,10 @@ app.options(
     credentials: true,
   })
 );
+
+
+
+app.use("/report", reportRouter);
 // 3600000 * 2
 // app.use("/", async (req, res, next) => {
 //   await Mill.deleteMany();

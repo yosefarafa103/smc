@@ -44,6 +44,20 @@ exports.updateUser = async (req, res, next) => {
     return next(err);
   }
 };
+exports.getAllUsers = async (req, res, next) => {
+  let users = await User.find();
+  if (req.query.filter === "blocked") {
+    console.log(req.query.filter);
+    users = await User.find({
+      isActive: false,
+    });
+  } else {
+    users = await User.find({
+      isActive: true,
+    });
+  }
+  res.status(200).json(users);
+};
 exports.deleteUser = async (req, res, next) => {
   await User.deleteOne({ _id: req.params.userId });
   res.status(204).send("user deleted!");

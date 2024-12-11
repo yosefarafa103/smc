@@ -6,10 +6,8 @@ const {
   blockUser,
   login,
   logout,
+  getAllUsers,
 } = require("../controller/UserController");
-const isLoggedIn = require("../middleware/isLoggedIn");
-const isAdmin = require("../middleware/isAdmin");
-
 const {
   createItem,
   getAllItems,
@@ -20,8 +18,7 @@ const User = require("../models/userModel");
 const router = express.Router();
 router.route("/login").post(login);
 router.route("/logout").get(logout);
-router.route("/").post(createUser).get(getAllItems(User));
+router.route("/").post(createUser).get(getAllUsers);
 router.route("/:userId").patch(updateUser).delete(deleteUser).get(getUser);
-// router.use(isLoggedIn, isAdmin);
 router.route("/block-user/:userId").patch(blockUser);
 module.exports = router;

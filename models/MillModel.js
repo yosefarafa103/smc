@@ -5,6 +5,7 @@ const millSchema = Schema({
   name: {
     type: String,
     required: [true, "please enter mill name"],
+    // unique: [true, "mill must be unique!"],
   },
   tn: {
     type: String,
@@ -36,28 +37,88 @@ const millSchema = Schema({
   carriedOutBy: {
     type: String,
     required: [true, "please enter carried out by"],
+    // enum: ["electrical", "mechanical", "production", "planned", "other"],
   },
+  // ["electrical", 'mechanical', 'production', 'planned', 'Other']
   // updatedBy: {
   //   type: [Schema.ObjectId],
   //   ref: "User",
   //   default: [],
   // },
+  millStats: {
+    type: {
+      planned: [String],
+      breakdown: [String],
+      other: [String],
+      maintenance: [String],
+    },
+    default: {},
+  },
+  millStatsCarryOutBy: {
+    type: {
+      electrical: {
+        type: [String],
+        default: [],
+      },
+      mechanical: {
+        type: [String],
+        default: [],
+      },
+      production: {
+        type: [String],
+        default: [],
+      },
+      planned: {
+        type: [String],
+        default: [],
+      },
+      other: {
+        type: [String],
+        default: [],
+      },
+    },
+    default: {},
+  },
   description: String,
+  planned: {
+    type: [String],
+    default: [],
+  },
+  breakdown: {
+    type: [String],
+    default: [],
+  },
+  other: {
+    type: [String],
+    default: [],
+  },
+  maintenance: {
+    type: [String],
+    default: [],
+  },
 });
 
 millSchema.pre(/^find/, async function (next) {
-  // this.select({ __v: false });
   // await calculateDateDifference(this._id);
-
   // this.populate({
   //   path: "updatedBy",
   //   select: "username",
   // });
   next();
 });
+millSchema.post(/^find/, async function (doc) {
+  // await calculateDateDifference(this._id);
+  // this.populate({
+  //   path: "updatedBy",
+  //   select: "username",
+  // });
+  // console.log(doc.duration);
+  
+});
 millSchema.pre("findOneAndUpdate", async function (next) {
   // this.select({ section: false });
-  console.log(this.duration);
+  // console.log(this);
+
 
   console.log("updating...");
   next();
@@ -65,11 +126,6 @@ millSchema.pre("findOneAndUpdate", async function (next) {
 millSchema.post("findOneAndUpdate", async function (doc) {
   // this.select({ section: false });
   console.log("updated");
-
-  // await calculateDateDifference(this._id);
-  // this.duration = await calculateDateDifference(this._id);
-  // console.log(this.duration);
-  // ()
 });
 const MillModel = model("Mill", millSchema);
 
